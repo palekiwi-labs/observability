@@ -11,16 +11,9 @@ pub struct Session {
     pub completed_at: Option<DateTime<Utc>>,
     pub response: Option<String>,
     pub summary: Option<String>,
-    pub status: SessionStatus,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type)]
-#[sqlx(type_name = "VARCHAR", rename_all = "lowercase")]
-pub enum SessionStatus {
-    Active,
-    Completed,
-    Failed,
-}
+
 
 #[derive(Debug, Deserialize)]
 pub struct SessionIdleRequest {
@@ -40,7 +33,6 @@ impl Session {
             completed_at: None,
             response: None,
             summary: None,
-            status: SessionStatus::Active,
         }
     }
 
@@ -50,6 +42,5 @@ impl Session {
         self.response = request.response;
         self.summary = request.summary;
         self.completed_at = Some(Utc::now());
-        self.status = SessionStatus::Completed;
     }
 }
