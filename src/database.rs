@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use sqlx::{Row, SqlitePool};
 use tracing::{error, info};
 
-use crate::models::{Session, SessionIdleRequest, SessionStatus};
+use crate::models::{Session, SessionIdleRequest};
 
 #[derive(Clone)]
 pub struct Database {
