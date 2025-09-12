@@ -1,7 +1,6 @@
 use anyhow::Result;
-use chrono::{DateTime, Utc};
 use sqlx::{Row, SqlitePool};
-use tracing::{error, info};
+use tracing::{info};
 
 use crate::models::{Session, SessionIdleRequest};
 
@@ -55,14 +54,6 @@ impl Database {
 
         let mut sessions = Vec::new();
         for row in rows {
-            let status_str: String = row.get("status");
-            let status = match status_str.as_str() {
-                "active" => SessionStatus::Active,
-                "completed" => SessionStatus::Completed,
-                "failed" => SessionStatus::Failed,
-                _ => SessionStatus::Active,
-            };
-
             let created_at: String = row.get("created_at");
             let completed_at: Option<String> = row.get("completed_at");
 
@@ -74,7 +65,6 @@ impl Database {
                 completed_at: completed_at.map(|s| s.parse()).transpose()?,
                 response: row.get("response"),
                 summary: row.get("summary"),
-                status,
             });
         }
 
@@ -92,14 +82,6 @@ impl Database {
         .await?;
 
         if let Some(row) = row {
-            let status_str: String = row.get("status");
-            let status = match status_str.as_str() {
-                "active" => SessionStatus::Active,
-                "completed" => SessionStatus::Completed,
-                "failed" => SessionStatus::Failed,
-                _ => SessionStatus::Active,
-            };
-
             let created_at: String = row.get("created_at");
             let completed_at: Option<String> = row.get("completed_at");
 
@@ -111,7 +93,6 @@ impl Database {
                 completed_at: completed_at.map(|s| s.parse()).transpose()?,
                 response: row.get("response"),
                 summary: row.get("summary"),
-                status,
             }))
         } else {
             Ok(None)
@@ -133,11 +114,6 @@ impl Database {
         .bind(session.completed_at.map(|dt| dt.to_rfc3339()))
         .bind(&session.response)
         .bind(&session.summary)
-        .bind(match session.status {
-            SessionStatus::Active => "active",
-            SessionStatus::Completed => "completed",
-            SessionStatus::Failed => "failed",
-        })
         .execute(&self.pool)
         .await?;
 
