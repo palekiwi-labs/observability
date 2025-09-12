@@ -73,3 +73,14 @@ pub async fn session_idle(
         }
     }
 }
+
+pub async fn inspect_json(
+    Json(payload): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    info!("JSON inspection payload: {}", serde_json::to_string_pretty(&payload).unwrap_or_else(|_| "Failed to serialize".to_string()));
+    
+    Ok(Json(serde_json::json!({
+        "status": "logged",
+        "message": "JSON payload has been logged for inspection"
+    })))
+}
